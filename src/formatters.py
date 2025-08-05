@@ -6,6 +6,7 @@ from typing import List, Dict, Any
 from io import StringIO
 
 from .models import Question, UserInfo
+from .utils import get_terminal_size, calculate_column_widths, smart_wrap_title
 
 
 class OutputFormatter:
@@ -49,7 +50,7 @@ class OutputFormatter:
     
     @staticmethod
     def format_questions_summary(questions: List[Question]) -> str:
-        """Format questions as a summary table.
+        """Format questions as a summary table with dynamic column widths.
         
         Args:
             questions: List of questions to format
@@ -60,20 +61,101 @@ class OutputFormatter:
         if not questions:
             return "No questions found."
         
+        # Get terminal size and calculate column widths
+        terminal_width, _ = get_terminal_size()
+        widths = calculate_column_widths(terminal_width)
+        
         # Header
         output = []
-        output.append(f"{'ID':<6} {'Title':<40} {'Difficulty':<10} {'Status':<12} {'Rate':<6}")
-        output.append("-" * 80)
+        header = (f"{'ID':<{widths['id']}} "
+                 f"{'Title':<{widths['title']}} "
+                 f"{'Difficulty':<{widths['difficulty']}} "
+                 f"{'Status':<{widths['status']}} "
+                 f"Rate")
+        output.append(header)
+        
+        # Dynamic separator line  
+        total_width = widths['id'] + widths['title'] + widths['difficulty'] + widths['status'] + 8 + 4  # Rate + spaces
+        output.append("-" * total_width)
         
         # Questions
         for q in questions:
-            title = q.title[:37] + "..." if len(q.title) > 40 else q.title
-            status = (q.status or "Not Attempted")[:11]
+            # Smart title handling
+            title = smart_wrap_title(q.title, widths['title'])
+            status = (q.status or "Not Attempted")
+            if len(status) > widths['status']:
+                status = status[:widths['status']-1] + "…"
+            
             rate = f"{q.acceptance_rate:.1f}%"
             
-            output.append(f"{q.id:<6} {title:<40} {q.difficulty:<10} {status:<12} {rate:<6}")
+            row = (f"{q.id:<{widths['id']}} "
+                  f"{title:<{widths['title']}} "
+                  f"{q.difficulty:<{widths['difficulty']}} "
+                  f"{status:<{widths['status']}} "
+                  f"{rate}")
+            output.append(row)
         
-        output.append("-" * 80)
+        output.append("-" * total_width)
+        output.append(f"Total Questions: {len(questions)}")
+        
+        # Add terminal info for debugging (optional)
+        if terminal_width < 100:
+            output.append(f"(Terminal width: {terminal_width}, Title column: {widths['title']})")
+        
+        return "\n".join(output)
+    
+    @staticmethod
+    def format_questions_wide(questions: List[Question]) -> str:
+        """Format questions in wide format with full titles.
+        
+        Args:
+            questions: List of questions to format
+            
+        Returns:
+            Formatted wide table string
+        """
+        if not questions:
+            return "No questions found."
+        
+        # Calculate maximum title length for better formatting
+        max_title_len = max(len(q.title) for q in questions) if questions else 20
+        title_width = min(max_title_len + 2, 80)  # Cap at 80 chars
+        
+        # Fixed widths for other columns
+        widths = {
+            'id': 6,
+            'title': title_width,
+            'difficulty': 10,
+            'status': 15,
+            'rate': 8
+        }
+        
+        # Header
+        output = []
+        header = (f"{'ID':<{widths['id']}} "
+                 f"{'Title':<{widths['title']}} "
+                 f"{'Difficulty':<{widths['difficulty']}} "
+                 f"{'Status':<{widths['status']}} "
+                 f"{'Rate':<{widths['rate']}}")
+        output.append(header)
+        
+        # Separator line
+        separator_length = sum(widths.values()) + 4
+        output.append("=" * separator_length)
+        
+        # Questions
+        for q in questions:
+            status = q.status or "Not Attempted"
+            rate = f"{q.acceptance_rate:.1f}%"
+            
+            row = (f"{q.id:<{widths['id']}} "
+                  f"{q.title:<{widths['title']}} "
+                  f"{q.difficulty:<{widths['difficulty']}} "
+                  f"{status:<{widths['status']}} "
+                  f"{rate:<{widths['rate']}}")
+            output.append(row)
+        
+        output.append("=" * separator_length)
         output.append(f"Total Questions: {len(questions)}")
         
         return "\n".join(output)

@@ -9,11 +9,13 @@ A modern, feature-rich command-line interface tool for interacting with the Leet
 - 🎯 Filter problems by status (Solved/Attempted/To Do), difficulty, and more
 - 📊 Display detailed problem information (difficulty, tags, acceptance rate, etc.)
 - 🔍 Search problems by keywords
-- 📤 Export data in multiple formats (JSON, CSV, Table, Summary)
+- 📤 Export data in multiple formats (JSON, CSV, Table, Summary, Wide)
 - 📈 Generate statistics for fetched problems
 - 🚀 Modern, modular architecture with comprehensive error handling
 - 📄 Pagination support for large datasets
 - 🧪 Full test coverage
+- 📱 Dynamic terminal width detection and adaptive formatting
+- 🎨 Smart text wrapping and truncation for optimal display
 
 ## Requirements
 
@@ -88,6 +90,7 @@ python3 leetcode_cli.py show_questions --status SOLVED --difficulty Easy --limit
 
 # Different output formats
 python3 leetcode_cli.py show_questions --format summary
+python3 leetcode_cli.py show_questions --format wide    # Full title display
 python3 leetcode_cli.py show_questions --format json
 python3 leetcode_cli.py show_questions --format csv
 
@@ -103,6 +106,9 @@ python3 leetcode_cli.py show_questions --limit 20 --skip 40
 
 # Exclude paid problems
 python3 leetcode_cli.py show_questions --exclude-paid
+
+# Wide format for long titles (adaptive to terminal width)
+python3 leetcode_cli.py show_questions --format wide --limit 10
 
 # Direct execution (if executable)
 ./leetcode_cli.py --help
@@ -123,7 +129,10 @@ For detailed usage examples, see [USAGE.md](USAGE.md).
 Detailed view with all problem information in a readable table format.
 
 ### Summary Format
-Compact table view showing essential information in a condensed format.
+Compact table view showing essential information in a condensed format. Automatically adapts to terminal width for optimal display.
+
+### Wide Format
+Full-width display that shows complete problem titles without truncation, ideal for viewing problems with long titles.
 
 ### JSON Format
 Machine-readable JSON output suitable for integration with other tools.
@@ -142,6 +151,7 @@ leetcode_cli/
 │   ├── session.py          # Session management
 │   ├── api.py              # LeetCode API client
 │   ├── formatters.py       # Output formatters
+│   ├── utils.py            # Terminal utilities and helpers
 │   └── cli.py              # Command-line interface
 ├── tests/                   # Test files
 │   ├── test_session.py     # Session management tests
@@ -162,12 +172,15 @@ The tool is built with a modular architecture:
 - **Session Management**: Secure handling of LeetCode session tokens
 - **API Client**: GraphQL client for LeetCode API with comprehensive error handling
 - **Formatters**: Multiple output formats for different use cases
+- **Utils**: Terminal utilities for dynamic display adaptation
 - **CLI**: Modern argument parsing with comprehensive options
 
 ## Technical Implementation
 
 - **LeetCode GraphQL API**: Direct integration with official API
 - **HTTP Cookies Authentication**: Secure session-based authentication
+- **Dynamic Terminal Detection**: Automatic terminal width detection and adaptive formatting
+- **Smart Text Processing**: Intelligent text wrapping and truncation algorithms
 - **Comprehensive Error Handling**: Detailed error messages and logging
 - **Type Hints**: Full type annotation for better code quality
 - **Modular Design**: Easy to extend and maintain
@@ -204,6 +217,9 @@ python tests/test_models.py
 - Ensure stable internet connection for API functionality
 - Use pagination for large datasets to avoid timeouts
 - The tool respects LeetCode's API rate limits
+- Summary format automatically adapts to your terminal width for optimal display
+- Use `--format wide` for viewing problems with long titles without truncation
+- Terminal width is automatically detected; resize your terminal for different layouts
 
 ## Migration from Legacy Version
 
@@ -225,29 +241,3 @@ The current version (`leetcode_cli.py`) provides all functionality of the origin
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Changelog
-
-### Version 1.0.0
-- Complete rewrite with modular architecture
-- Advanced filtering and search capabilities
-- Multiple output formats (JSON, CSV, Table, Summary)
-- Comprehensive error handling and logging
-- Pagination support
-- Statistics generation
-- Full test coverage
-- Type hints and documentation
-
-## Important Notes
-
-- Session tokens have expiration times and need to be updated periodically
-- Do not publicly share your session token
-- Ensure stable internet connection for API functionality
-
-## License
-
-This project is licensed under open source terms.
-
-## Contributing
-
-Issues and Pull Requests are welcome to improve this tool.

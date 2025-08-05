@@ -103,7 +103,7 @@ Examples:
     # Output options
     parser.add_argument(
         '--format',
-        choices=['table', 'summary', 'json', 'csv'],
+        choices=['table', 'summary', 'wide', 'json', 'csv'],
         default='table',
         help='Output format (default: table)'
     )
@@ -327,6 +327,7 @@ class LeetCodeCLI:
         format_mapping = {
             'table': OutputFormatter.format_questions_table,
             'summary': OutputFormatter.format_questions_summary,
+            'wide': OutputFormatter.format_questions_wide,
             'json': OutputFormatter.format_questions_json,
             'csv': OutputFormatter.format_questions_csv
         }
