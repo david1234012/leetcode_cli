@@ -42,7 +42,9 @@ def create_parser() -> argparse.ArgumentParser:
 Examples:
   leetcode_cli check_session                     # Check session validity
   leetcode_cli show_questions                    # Show all questions
-  leetcode_cli show_questions --status SOLVED   # Show solved questions
+  leetcode_cli show_questions --status solved   # Show solved questions
+  leetcode_cli show_questions --status SOLVED   # Show solved questions (case insensitive)
+  leetcode_cli show_questions --difficulty easy # Show easy questions
   leetcode_cli show_questions --limit 10        # Show first 10 questions
   leetcode_cli search "two sum"                  # Search for questions
   leetcode_cli export --format json             # Export to JSON
@@ -58,14 +60,12 @@ Examples:
     # Question filtering options
     parser.add_argument(
         '--status',
-        choices=[QuestionStatus.SOLVED, QuestionStatus.ATTEMPTED, QuestionStatus.TO_DO],
-        help='Filter questions by status'
+        help='Filter questions by status (solved, attempted, todo - case insensitive)'
     )
     
     parser.add_argument(
         '--difficulty',
-        choices=['Easy', 'Medium', 'Hard'],
-        help='Filter questions by difficulty'
+        help='Filter questions by difficulty (easy, medium, hard - case insensitive)'
     )
     
     parser.add_argument(
@@ -298,22 +298,90 @@ class LeetCodeCLI:
             print(f"Failed to write output file: {e}", file=sys.stderr)
             return 1
     
+    def _normalize_status(self, status: Optional[str]) -> Optional[str]:
+        """Normalize status input to standard format.
+        
+        Args:
+            status: Raw status input
+            
+        Returns:
+            Normalized status or None if invalid
+        """
+        if not status:
+            return None
+        
+        status_mapping = {
+            'solved': QuestionStatus.SOLVED,
+            'attempted': QuestionStatus.ATTEMPTED,
+            'todo': QuestionStatus.TO_DO,
+            'to_do': QuestionStatus.TO_DO,
+            'to-do': QuestionStatus.TO_DO,
+            # Also accept already uppercase versions
+            'SOLVED': QuestionStatus.SOLVED,
+            'ATTEMPTED': QuestionStatus.ATTEMPTED,
+            'TO_DO': QuestionStatus.TO_DO
+        }
+        
+        normalized = status_mapping.get(status.lower())
+        if not normalized:
+            valid_options = ['solved', 'attempted', 'todo']
+            raise ValueError(f"Invalid status '{status}'. Valid options: {', '.join(valid_options)}")
+        
+        return normalized
+    
+    def _normalize_difficulty(self, difficulty: Optional[str]) -> Optional[str]:
+        """Normalize difficulty input to standard format.
+        
+        Args:
+            difficulty: Raw difficulty input
+            
+        Returns:
+            Normalized difficulty or None if invalid
+        """
+        if not difficulty:
+            return None
+        
+        difficulty_mapping = {
+            'easy': 'Easy',
+            'medium': 'Medium',
+            'hard': 'Hard',
+            # Also accept already capitalized versions
+            'Easy': 'Easy',
+            'Medium': 'Medium',
+            'Hard': 'Hard'
+        }
+        
+        normalized = difficulty_mapping.get(difficulty.lower())
+        if not normalized:
+            valid_options = ['easy', 'medium', 'hard']
+            raise ValueError(f"Invalid difficulty '{difficulty}'. Valid options: {', '.join(valid_options)}")
+        
+        return normalized
+
     def _build_filter_criteria(self) -> QuestionFilter:
         """Build filter criteria from command line arguments.
         
         Returns:
             Filter criteria object
         """
-        include_paid = not self.args.exclude_paid if hasattr(self.args, 'exclude_paid') else True
-        
-        return QuestionFilter(
-            status=self.args.status,
-            difficulty=self.args.difficulty,
-            search_keyword=self.args.search,
-            limit=self.args.limit,
-            skip=self.args.skip,
-            include_paid=include_paid
-        )
+        try:
+            # Normalize and validate inputs
+            normalized_status = self._normalize_status(self.args.status)
+            normalized_difficulty = self._normalize_difficulty(self.args.difficulty)
+            
+            include_paid = not self.args.exclude_paid if hasattr(self.args, 'exclude_paid') else True
+            
+            return QuestionFilter(
+                status=normalized_status,
+                difficulty=normalized_difficulty,
+                search_keyword=self.args.search,
+                limit=self.args.limit,
+                skip=self.args.skip,
+                include_paid=include_paid
+            )
+        except ValueError as e:
+            print(f"Invalid argument: {e}", file=sys.stderr)
+            sys.exit(1)
     
     def _format_questions(self, questions) -> str:
         """Format questions based on output format.

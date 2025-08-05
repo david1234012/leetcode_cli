@@ -16,6 +16,7 @@ A modern, feature-rich command-line interface tool for interacting with the Leet
 - 🧪 Full test coverage
 - 📱 Dynamic terminal width detection and adaptive formatting
 - 🎨 Smart text wrapping and truncation for optimal display
+- 🔤 Case-insensitive argument parsing for better user experience
 
 ## Requirements
 
@@ -68,15 +69,15 @@ python3 leetcode_cli.py check_session
 # Show all problems (default: first 50)
 python3 leetcode_cli.py show_questions
 
-# Show problems with specific status
-python3 leetcode_cli.py show_questions --status SOLVED
-python3 leetcode_cli.py show_questions --status ATTEMPTED
-python3 leetcode_cli.py show_questions --status TO_DO
+# Show problems with specific status (case insensitive)
+python3 leetcode_cli.py show_questions --status solved    # or SOLVED
+python3 leetcode_cli.py show_questions --status attempted # or ATTEMPTED  
+python3 leetcode_cli.py show_questions --status todo      # or TO_DO
 
-# Filter by difficulty
-python3 leetcode_cli.py show_questions --difficulty Easy
-python3 leetcode_cli.py show_questions --difficulty Medium
-python3 leetcode_cli.py show_questions --difficulty Hard
+# Filter by difficulty (case insensitive)
+python3 leetcode_cli.py show_questions --difficulty easy   # or Easy
+python3 leetcode_cli.py show_questions --difficulty medium # or Medium
+python3 leetcode_cli.py show_questions --difficulty hard   # or Hard
 ```
 
 ### Advanced Usage
@@ -85,8 +86,8 @@ python3 leetcode_cli.py show_questions --difficulty Hard
 # Search problems by keyword
 python3 leetcode_cli.py search --search "two sum"
 
-# Combine filters
-python3 leetcode_cli.py show_questions --status SOLVED --difficulty Easy --limit 10
+# Combine filters (case insensitive)
+python3 leetcode_cli.py show_questions --status solved --difficulty easy --limit 10
 
 # Different output formats
 python3 leetcode_cli.py show_questions --format summary
@@ -96,7 +97,7 @@ python3 leetcode_cli.py show_questions --format csv
 
 # Export to file
 python3 leetcode_cli.py export --format json --output problems.json
-python3 leetcode_cli.py export --status SOLVED --format csv --output solved.csv
+python3 leetcode_cli.py export --status solved --format csv --output solved.csv
 
 # Show statistics
 python3 leetcode_cli.py show_questions --stats
@@ -109,6 +110,11 @@ python3 leetcode_cli.py show_questions --exclude-paid
 
 # Wide format for long titles (adaptive to terminal width)
 python3 leetcode_cli.py show_questions --format wide --limit 10
+
+# Mixed case examples (all work the same)
+python3 leetcode_cli.py show_questions --status SOLVED --difficulty HARD
+python3 leetcode_cli.py show_questions --status solved --difficulty hard
+python3 leetcode_cli.py show_questions --status Solved --difficulty Hard
 
 # Direct execution (if executable)
 ./leetcode_cli.py --help
@@ -237,6 +243,34 @@ The current version (`leetcode_cli.py`) provides all functionality of the origin
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## Changelog
+
+### Version 1.2.0 (Latest)
+- Added case-insensitive argument parsing for --status and --difficulty
+- Unified input standards: accept both lowercase and uppercase inputs
+- Improved user experience with flexible argument formats
+- Enhanced error messages for invalid arguments
+- Updated documentation with case-insensitive examples
+
+### Version 1.1.0
+- Added dynamic terminal width detection and adaptive formatting
+- Implemented smart text wrapping and truncation algorithms
+- Added new 'wide' format for full title display
+- Enhanced summary format with terminal size adaptation
+- Added terminal utilities module (utils.py)
+- Improved user experience for different terminal sizes
+- Fixed title truncation issues in summary format
+
+### Version 1.0.0
+- Complete rewrite with modular architecture
+- Advanced filtering and search capabilities
+- Multiple output formats (JSON, CSV, Table, Summary)
+- Comprehensive error handling and logging
+- Pagination support
+- Statistics generation
+- Full test coverage
+- Type hints and documentation
 
 ## License
 
