@@ -144,6 +144,13 @@ def check_leetcode_session():
 		user_data = data.get('data', {}).get('user', None)
 		if user_data:
 			print(f"User: {user_data['username']}")
+			submit_stats = user_data.get('submitStats')
+			if submit_stats:
+				ac_nums = submit_stats.get('acSubmissionNum', [])
+				for entry in ac_nums:
+					difficulty = entry.get('difficulty', 'Unknown')
+					count = entry.get('count', 0)
+					print(f"  {difficulty}: {count}")
 			return True
 		else:
 			print("Session is invalid.")
